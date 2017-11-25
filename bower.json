@@ -1,5 +1,6 @@
 {
   "name": "yo-text",
+  "version": "0.1.0",
   "description": "edit a text content inside element",
   "main": "yo-text.html",
   "license": "MIT",
