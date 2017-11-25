@@ -1,6 +1,24 @@
 # \<yo-text\>
 
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/michael-silva/yo-text)
+
 A floating toolbar with some text editing tools.
+
+## Example of usage ##
+<!--
+```
+<custom-element-demo>
+  <template>
+    <link rel="import" href="yo-text.html">
+    <next-code-block></next-code-block>
+  </template>
+</custom-element-demo>
+```
+-->
+```html
+<p contenteditable="true">Here has some text and you can edit it.</p>
+<yo-text></yo-text>
+```
 
 ## Install the Polymer-CLI
 

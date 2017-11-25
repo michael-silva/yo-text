@@ -2,6 +2,7 @@
   "name": "yo-text",
   "description": "edit a text content inside element",
   "main": "yo-text.html",
+  "license": "MIT",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0"
   },
