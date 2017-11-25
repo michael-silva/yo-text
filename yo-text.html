@@ -1,0 +1,275 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="yo-text">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity .3s ease-in;
+            }
+    
+            :host(.in) {
+                opacity: 1;
+                pointer-events: all;
+                transition: opacity .3s ease-out;
+            }
+    
+            ul {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+    
+            li {
+                display: inline-block;
+                float: left;
+            }
+    
+            button {
+                width: 30px;
+                height: 30px;
+                background-color: #fff;
+                color: #111;
+                border: none;
+                box-shadow: 1px 1px 0 1px #aaa;
+                cursor: pointer;
+            }
+    
+            button:hover {
+                background-color: #333;
+                color: #fefefe;
+            }
+            button.active {
+                background-color: #666;
+                border: 1px solid #333;
+                color: #fefefe;
+            }
+
+            .fa {
+                display: inline-block;
+                font: normal normal normal 14px/1 FontAwesome;
+                font-size: inherit;
+                text-rendering: auto;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            .fa-external-link:before {
+                content: "\f08e";
+            }
+
+            .fa-bold:before {
+                content: "\f032";
+            }
+
+            .fa-italic:before {
+                content: "\f033";
+            }
+
+            .fa-underline:before {
+                content: "\f0cd";
+            }
+
+            .fa-strikethrough:before {
+                content: "\f0cc";
+            }
+
+            .fa-superscript:before {
+                content: "\f12b";
+            }
+
+            .fa-subscript:before {
+                content: "\f12c";
+            }
+        </style>
+        <ul>
+            <li><button action="surround" tag="b"><i class="fa fa-bold"></i></button></li>
+            <li><button action="surround" tag="i"><i class="fa fa-italic"></i></button></li>
+            <li><button action="surround" tag="u"><i class="fa fa-underline"></i></button></li>
+            <li><button action="surround" tag="s"><i class="fa fa-strikethrough"></i></button></li>
+            <li><button action="surround" tag="sup"><i class="fa fa-superscript"></i></button></li>
+            <li><button action="surround" tag="sub"><i class="fa fa-subscript"></i></button></li>
+            <li><button action="surround" tag="a"><i class="fa fa-external-link"></i></button></li>
+        </ul>
+    </template>
+
+    <script>
+        /**
+         * `yo-text`
+         * edit a text content inside element
+         *
+         * @customElement
+         * @polymer
+         * @demo demo/index.html
+         */
+        class TextEditor extends Polymer.Element {
+            static get is() { return 'yo-text'; }
+            static get properties() {
+                return {
+                    direction: String,
+                    visible: {
+                        type: Boolean,
+                        value: false,
+                        observer: '_visibleChanged'
+                    }
+                };
+            }
+            static get actions() {
+                let surroundByTag = (node, tag) => {
+                    const startMarker = `#${tag}#`;
+                    const endMarker = `#/${tag}#`;
+                    const range = window.getSelection().getRangeAt(0);
+                    const endOffset = range.endOffset;
+                    const startOffset = range.startOffset;
+
+                    const endText = range.endContainer.textContent;
+                    range.endContainer.textContent = endText.slice(0, endOffset) + endMarker + endText.slice(endOffset);
+                    const startText = range.startContainer.textContent;
+                    range.startContainer.textContent = startText.slice(0, startOffset) + startMarker + startText.slice(startOffset);
+                    
+                    node.innerHTML = node.innerHTML.replace(startMarker, `<${tag}>`).replace(endMarker, `</${tag}>`);
+                };
+                let releaseFromTag = (node, tag) => {
+                    const startMarker = `#${tag}#`;
+                    const endMarker = `#/${tag}#`;
+                    const range = window.getSelection().getRangeAt(0);
+                    const startOffset = range.startOffset;
+
+                    let container = range.startContainer.parentElement;
+                    while(container.nodeName.toLowerCase() !== tag) container = container.parentElement;
+
+                    const text = container.textContent;
+                    container.textContent = startMarker + text + endMarker;
+                    
+                    node.innerHTML = node.innerHTML.replace(`<${tag}>${startMarker}`, '').replace(`${endMarker}</${tag}>`, '');
+                };
+
+                return {
+                    surround: {
+                        active: function(tag, targetNode) {
+                            surroundByTag(targetNode, tag);
+                        },
+                        inactive: function(tag, targetNode) {
+                            releaseFromTag(targetNode, tag);
+                        }
+                    }
+                };
+            }
+            _setActivedButtons() {
+                let selected = window.getSelection().getRangeAt(0).startContainer.parentElement;
+                while(!this.targetElement.isSameNode(selected)) {
+                    let btn = this.root.querySelector(`[tag='${selected.nodeName.toLowerCase()}']`)
+                    if(btn) btn.classList.add('active');
+                    selected = selected.parentNode;
+                }
+            }
+            _bindStyles(elem, styles) {
+                for (var key in styles) elem.style[key] = styles[key];
+            }
+            _getPosition() {
+                let MARGIN = 10;
+                var contentRect = this.targetElement.getBoundingClientRect();
+
+                this.style.display = 'block';
+                var elemRect = this.getBoundingClientRect();
+
+                let center = ((contentRect.left  + window.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2);
+                let top = (contentRect.top + window.scrollY) - elemRect.height - MARGIN;
+                //if screen out change to bottom
+                if(top < window.scrollY) top = (contentRect.top + window.scrollY) + contentRect.height + MARGIN;
+
+                let position = {
+                    top: `${top}px`,
+                    left: `${center}px`
+                };
+
+                return position;
+            }
+            _show() {
+                this._bindStyles(this, this._getPosition());
+                
+                this._setActivedButtons();
+                this.dispatchEvent(new CustomEvent('show', {detail: null}));
+                setTimeout(() => this.classList.add('in'), 100);
+            }
+            _hide() {
+                this.classList.remove('in');
+                this.root.querySelectorAll('button').forEach(btn => {
+                    btn.classList.remove('active')
+                });
+                this.dispatchEvent(new CustomEvent('hide', {detail: null}));
+                setTimeout(() => this.style.display = 'none', 100);
+            }
+            _visibleChanged(visible) {
+                if(visible && this.targetElement) {
+                    this._show();
+                }
+                else {
+                    this._hide();
+                }
+            }
+            constructor() {
+                super();
+                // …
+            }
+            connectedCallback() {
+                super.connectedCallback();
+                this.style.display = 'none';
+                
+                this.addEventListener('mouseover', e => this.mouseover = true);    
+                this.addEventListener('mouseout', e => this.mouseover = false);    
+                
+                this.root.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const action = TextEditor.actions[e.currentTarget.getAttribute('action')];
+                        const tag = e.currentTarget.getAttribute('tag');
+                        if(e.currentTarget.classList.contains('active')) {
+                            e.currentTarget.classList.remove('active');
+                            if(action) {
+                                let elem = action.inactive(tag, this.targetElement);
+                                this.visible = false;
+                                this.dispatchEvent(new CustomEvent('inactive', {detail: { tag: tag, element: elem }}));
+                            }
+                        }
+                        else {
+                            e.currentTarget.classList.add('active');
+                            if(action) {
+                                let elem = action.active(tag, this.targetElement);
+                                this.visible = false;
+                                this.dispatchEvent(new CustomEvent('active', {detail: { tag: tag, element: elem }}));
+                            }
+                        }
+                        this.targetElement.focus();
+                    });
+                });
+
+                document.addEventListener('selectionchange', (e) => {
+                    const selection = window.getSelection();
+                    if(selection.type == "Range") {
+                        //let node = selection.getRangeAt(0).commonAncestorContainer;
+                        const node = document.activeElement;
+                        if(node.hasAttribute('contenteditable')) {
+                            this.targetElement = node;
+                            this.visible = true;
+                            return;
+                        }
+                    }
+                    
+                    if(!this.mouseover)
+                        this.visible = false;
+                });
+            }
+
+            ready() {
+                super.ready();
+            }
+        }
+
+        window.customElements.define(TextEditor.is, TextEditor);
+    </script>
+</dom-module>

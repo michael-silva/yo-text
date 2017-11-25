@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>yo-text test</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../yo-text.html">
+</head>
+
+<body>
+
+    <test-fixture id="BasicTestFixture">
+        <template>
+            <p id="p1" contenteditable>Here has some text and you can edit it.</p>
+            <yo-text></yo-text>
+        </template>
+    </test-fixture>
+
+    <test-fixture id="ChangedPropertyTestFixture">
+        <template>
+            <yo-text prop1="new-prop1"></yo-text>
+        </template>
+    </test-fixture>
+
+    <script>
+        suite('yo-text', function () {
+            let pContent = 'Here has some text and you can edit it.';
+
+            test('instantiating the element with default properties works', function (done) {
+                const elements = fixture('BasicTestFixture');
+
+                elements[0].focus();
+
+                function asserts() {
+                    assert.equal(elements[0].contentEditable, 'true');
+                    assert.equal(elements[0].innerHTML, pContent);
+                    assert.equal(elements[1].visible, false);
+                    assert.equal(elements[1].classList.contains('in'), false);
+                    document.removeEventListener('selectionchange', asserts, false);
+                    done();
+                };
+
+                document.addEventListener('selectionchange', asserts, false);
+            });
+
+            test('start selection range at the target element and turn on visible works', function (done) {
+                var elements = fixture('BasicTestFixture');
+                elements[0].focus();
+                window.getSelection().extend(elements[0].childNodes[0], 4);
+
+                function asserts() {
+                    assert.equal(elements[0].contentEditable, 'true');
+                    assert.equal(elements[0].innerHTML, pContent);
+                    assert.equal(elements[1].visible, true);
+                    assert.equal(elements[1].classList.contains('in'), true);
+                    document.removeEventListener('selectionchange', asserts, false);
+                    done();
+                }
+                document.addEventListener('selectionchange', asserts, false);
+            });
+
+            test('focusout target element and turn off visible works', function () {
+                var elements = fixture('BasicTestFixture');
+                var range = document.createRange();
+
+                range.setStart(elements[0], 0);
+                range.setEnd(elements[0], 10);
+                
+                assert.equal(elements[0].contentEditable, 'true');
+                assert.equal(elements[0].innerHTML, pContent);
+                assert.equal(elements[1].visible, true);
+                assert.equal(elements[1].classList.contains('in'), true);
+                document.body.click();
+                assert.equal(elements[0].contentEditable, 'true');
+                assert.equal(elements[0].innerHTML, pContent);
+                assert.equal(elements[1].visible, false);
+                assert.equal(elements[1].classList.contains('in'), false);
+            });
+
+        });
+    </script>
+
+</body>
+
+</html>
