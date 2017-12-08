@@ -1,10 +1,10 @@
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
 
 <dom-module id="yo-text">
     <template>
         <style>
             :root {
-                --font: normal normal normal 14px/1 FontAwesome;
                 --color: #f8f8f8;
                 --bgcolor: #2f2f3a;
                 --bgcolor-active: #1bcea3;
@@ -12,14 +12,6 @@
                 --bgcolor-hover: #1bcea3;
                 --color-hover: #f8f8f8;
                 --shadow-color: #b6b6b6;
-
-                --link-content: "\f08e";
-                --bold-content: "\f032";
-                --italic-content: "\f033";
-                --underline-content: "\f0cd";
-                --strikethrough-content: "\f0cc";
-                --superscript-content: "\f12b";
-                --subscript-content: "\f12c";
             }
 
             :host {
@@ -48,15 +40,13 @@
             }
     
             button {
-                width: 30px;
-                height: 30px;
+                padding: 6px;
                 background-color: var(--bgcolor);
                 color: var(--color);
                 border: none;
                 box-shadow: 1px 1px 3px var(--shadow-color);
                 cursor: pointer;
-            }
-    
+            }    
             button:hover {
                 background-color: var(--bgcolor-hover);
                 color: var(--color-hover);
@@ -65,52 +55,26 @@
                 background-color: var(--bgcolor-active);
                 color: var(--color-active);
             }
-
-            .fa {
-                display: inline-block;
-                font: var(--font);
-                font-size: inherit;
-                text-rendering: auto;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
+            
+            iron-icon {
+                fill: var(--color);
+            }
+            button:hover iron-icon {
+                fill: var(--color-hover);
+            }
+            button.active iron-icon {
+                fill: var(--color-active);
             }
 
-            .fa-external-link:before {
-                content: var(--link-content);
-            }
-
-            .fa-bold:before {
-                content: var(--bold-content);
-            }
-
-            .fa-italic:before {
-                content: var(--italic-content);
-            }
-
-            .fa-underline:before {
-                content: var(--underline-content);
-            }
-
-            .fa-strikethrough:before {
-                content: var(--strikethrough-content);
-            }
-
-            .fa-superscript:before {
-                content: var(--superscript-content);
-            }
-
-            .fa-subscript:before {
-                content: var(--subscript-content);
-            }
         </style>
         <ul>
-            <li><button action="surround" tag="b"><i class="fa fa-bold"></i></button></li>
-            <li><button action="surround" tag="i"><i class="fa fa-italic"></i></button></li>
-            <li><button action="surround" tag="u"><i class="fa fa-underline"></i></button></li>
-            <li><button action="surround" tag="s"><i class="fa fa-strikethrough"></i></button></li>
-            <li><button action="surround" tag="sup"><i class="fa fa-superscript"></i></button></li>
-            <li><button action="surround" tag="sub"><i class="fa fa-subscript"></i></button></li>
-            <li><button action="link" tag="a"><i class="fa fa-external-link"></i></button></li>
+            <li><button action="surround" tag="b"><iron-icon icon="editor:format-bold"></iron-icon></button></li>
+            <li><button action="surround" tag="i"><iron-icon icon="editor:format-italic"></iron-icon></button></li>
+            <li><button action="surround" tag="u"><iron-icon icon="editor:format-underlined"></iron-icon></button></li>
+            <li><button action="surround" tag="s"><iron-icon icon="editor:format-strikethrough"></iron-icon></button></li>
+            <!--<li><button action="surround" tag="sup"><iron-icon icon="format-superscript"></iron-icon></button></li>
+            <li><button action="surround" tag="sub"><iron-icon icon="format-subscript"></iron-icon></button></li>-->
+            <li><button action="link" tag="a"><iron-icon icon="editor:insert-link"></iron-icon></button></li>
         </ul>
     </template>
 
