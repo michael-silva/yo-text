@@ -21,24 +21,24 @@
                 opacity: 0;
                 transition: opacity .3s ease-in;
             }
-    
+
             :host(.in) {
                 opacity: 1;
                 pointer-events: all;
                 transition: opacity .3s ease-out;
             }
-    
+
             ul {
                 list-style-type: none;
                 padding: 0;
                 margin: 0;
             }
-    
+
             li {
                 display: inline-block;
                 float: left;
             }
-    
+
             button {
                 padding: 6px;
                 background-color: var(--bgcolor);
@@ -46,35 +46,58 @@
                 border: none;
                 box-shadow: 1px 1px 3px var(--shadow-color);
                 cursor: pointer;
-            }    
+            }
+
             button:hover {
                 background-color: var(--bgcolor-hover);
                 color: var(--color-hover);
             }
+
             button.active {
                 background-color: var(--bgcolor-active);
                 color: var(--color-active);
             }
-            
+
             iron-icon {
                 fill: var(--color);
             }
+
             button:hover iron-icon {
                 fill: var(--color-hover);
             }
+
             button.active iron-icon {
                 fill: var(--color-active);
             }
-
         </style>
         <ul>
-            <li><button action="surround" tag="b"><iron-icon icon="editor:format-bold"></iron-icon></button></li>
-            <li><button action="surround" tag="i"><iron-icon icon="editor:format-italic"></iron-icon></button></li>
-            <li><button action="surround" tag="u"><iron-icon icon="editor:format-underlined"></iron-icon></button></li>
-            <li><button action="surround" tag="s"><iron-icon icon="editor:format-strikethrough"></iron-icon></button></li>
+            <li>
+                <button action="surround" tag="b">
+                    <iron-icon icon="editor:format-bold"></iron-icon>
+                </button>
+            </li>
+            <li>
+                <button action="surround" tag="i">
+                    <iron-icon icon="editor:format-italic"></iron-icon>
+                </button>
+            </li>
+            <li>
+                <button action="surround" tag="u">
+                    <iron-icon icon="editor:format-underlined"></iron-icon>
+                </button>
+            </li>
+            <li>
+                <button action="surround" tag="s">
+                    <iron-icon icon="editor:format-strikethrough"></iron-icon>
+                </button>
+            </li>
             <!--<li><button action="surround" tag="sup"><iron-icon icon="format-superscript"></iron-icon></button></li>
             <li><button action="surround" tag="sub"><iron-icon icon="format-subscript"></iron-icon></button></li>-->
-            <li><button action="link" tag="a"><iron-icon icon="editor:insert-link"></iron-icon></button></li>
+            <li>
+                <button action="link" tag="a">
+                    <iron-icon icon="editor:insert-link"></iron-icon>
+                </button>
+            </li>
         </ul>
     </template>
 
@@ -110,14 +133,14 @@
                     range.endContainer.textContent = endText.slice(0, endOffset) + endMarker + endText.slice(endOffset);
                     const startText = range.startContainer.textContent;
                     range.startContainer.textContent = startText.slice(0, startOffset) + startMarker + startText.slice(startOffset);
-                    
+
                     const container = range.startContainer;
                     const regex = new RegExp(`${startMarker}(.*)${endMarker}`, 'gis');
                     const inner = regex.exec(node.innerHTML)[1];
                     node.innerHTML = node.innerHTML.replace(regex, `<${tag}>$1</${tag}>`);
-                    
-                    for(const child of node.querySelectorAll(tag)) {
-                        if(child.innerHTML === inner)
+
+                    for (const child of node.querySelectorAll(tag)) {
+                        if (child.innerHTML === inner)
                             return child;
                     }
 
@@ -130,11 +153,11 @@
                     const startOffset = range.startOffset;
 
                     let container = range.startContainer.parentElement;
-                    while(container.nodeName.toLowerCase() !== tag) container = container.parentElement;
+                    while (container.nodeName.toLowerCase() !== tag) container = container.parentElement;
 
                     const text = container.innerHTML;
                     container.innerHTML = startMarker + text + endMarker;
-                    
+
                     const regex = new RegExp(`<${tag}[a-z\\s""''=]*>${startMarker}(.*)${endMarker}</${tag}>`, 'gis');
                     node.innerHTML = node.innerHTML.replace(regex, `$1`);
                     return container;
@@ -142,20 +165,20 @@
 
                 return {
                     surround: {
-                        active: function(tag, targetNode) {
+                        active: function (tag, targetNode) {
                             return surroundByTag(targetNode, tag);
                         },
-                        inactive: function(tag, targetNode) {
+                        inactive: function (tag, targetNode) {
                             return releaseFromTag(targetNode, tag);
                         }
                     },
                     link: {
-                        active: function(tag, targetNode) {
+                        active: function (tag, targetNode) {
                             const a = surroundByTag(targetNode, tag);
                             a.setAttribute('href', a.innerText);
                             return a;
                         },
-                        inactive: function(tag, targetNode) {
+                        inactive: function (tag, targetNode) {
                             return releaseFromTag(targetNode, tag);
                         }
                     }
@@ -164,9 +187,9 @@
             _setActivedButtons() {
                 let selected = window.getSelection().getRangeAt(0).startContainer;
 
-                while(!this.targetElement.isSameNode(selected)) {
+                while (!this.targetElement.isSameNode(selected)) {
                     let btn = this.root.querySelector(`[tag='${selected.nodeName.toLowerCase()}']`)
-                    if(btn) btn.classList.add('active');
+                    if (btn) btn.classList.add('active');
                     selected = selected.parentNode;
                 }
             }
@@ -180,12 +203,12 @@
                 this.style.display = 'block';
                 var elemRect = this.getBoundingClientRect();
 
-                let left = Math.max(0, ((contentRect.left  + window.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2));
+                let left = Math.max(0, ((contentRect.left + window.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2));
                 let top = (contentRect.top + window.scrollY) - elemRect.height - MARGIN;
                 //if screen out change to bottom
-                if(top < window.scrollY) 
+                if (top < window.scrollY)
                     top = (contentRect.top + window.scrollY) + contentRect.height + MARGIN;
-                if(left + elemRect.width > window.innerWidth) 
+                if (left + elemRect.width > window.innerWidth)
                     left = Math.max(0, window.innerWidth - elemRect.width);
 
                 let position = {
@@ -197,9 +220,9 @@
             }
             _show() {
                 this._bindStyles(this, this._getPosition());
-                
+
                 this._setActivedButtons();
-                this.dispatchEvent(new CustomEvent('show', {detail: null}));
+                this.dispatchEvent(new CustomEvent('show', { detail: null }));
                 setTimeout(() => this.classList.add('in'), 100);
             }
             _hide() {
@@ -207,11 +230,11 @@
                 this.root.querySelectorAll('button').forEach(btn => {
                     btn.classList.remove('active')
                 });
-                this.dispatchEvent(new CustomEvent('hide', {detail: null}));
+                this.dispatchEvent(new CustomEvent('hide', { detail: null }));
                 setTimeout(() => this.style.display = 'none', 100);
             }
             _visibleChanged(visible) {
-                if(visible && this.targetElement) {
+                if (visible && this.targetElement) {
                     this._show();
                 }
                 else {
@@ -225,30 +248,30 @@
             connectedCallback() {
                 super.connectedCallback();
                 this.style.display = 'none';
-                
-                this.addEventListener('mouseover', e => this.mouseover = true);    
-                this.addEventListener('mouseout', e => this.mouseover = false);    
-                
+
+                this.addEventListener('mouseover', e => this.mouseover = true);
+                this.addEventListener('mouseout', e => this.mouseover = false);
+
                 this.root.querySelectorAll('button').forEach(btn => {
                     btn.addEventListener('click', e => {
                         e.preventDefault();
                         e.stopPropagation();
                         const action = TextEditor.actions[e.currentTarget.getAttribute('action')];
                         const tag = e.currentTarget.getAttribute('tag');
-                        if(e.currentTarget.classList.contains('active')) {
+                        if (e.currentTarget.classList.contains('active')) {
                             e.currentTarget.classList.remove('active');
-                            if(action) {
+                            if (action) {
                                 let elem = action.inactive(tag, this.targetElement);
                                 this.visible = false;
-                                this.dispatchEvent(new CustomEvent('inactive', {detail: { tag: tag, element: elem }}));
+                                this.dispatchEvent(new CustomEvent('inactive', { detail: { tag: tag, element: elem } }));
                             }
                         }
                         else {
                             e.currentTarget.classList.add('active');
-                            if(action) {
+                            if (action) {
                                 let elem = action.active(tag, this.targetElement);
                                 this.visible = false;
-                                this.dispatchEvent(new CustomEvent('active', {detail: { tag: tag, element: elem }}));
+                                this.dispatchEvent(new CustomEvent('active', { detail: { tag: tag, element: elem } }));
                             }
                         }
                         this.targetElement.focus();
@@ -257,17 +280,17 @@
 
                 document.addEventListener('selectionchange', (e) => {
                     const selection = window.getSelection();
-                    if(selection.type == "Range") {
+                    if (selection.type == "Range") {
                         //let node = selection.getRangeAt(0).commonAncestorContainer;
                         const node = document.activeElement;
-                        if(node.hasAttribute('contenteditable')) {
+                        if (node.hasAttribute('contenteditable')) {
                             this.targetElement = node;
                             this.visible = true;
                             return;
                         }
                     }
-                    
-                    if(!this.mouseover)
+
+                    if (!this.mouseover)
                         this.visible = false;
                 });
             }
