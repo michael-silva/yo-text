@@ -114,10 +114,17 @@
             static get is() { return 'yo-text'; }
             static get properties() {
                 return {
-                    visible: {
+                    disableAutotarget: {
                         type: Boolean,
-                        value: false,
-                        observer: '_visibleChanged'
+                        value: false
+                    },
+                    targetElement: {
+                        type: Element,
+                        observer: '_targetElementChanged'
+                    },
+                    selector: {
+                        type: String,
+                        value: '[contenteditable]'
                     }
                 };
             }
@@ -219,6 +226,7 @@
                 return position;
             }
             _show() {
+                if (!this.targetElement) return;
                 this._bindStyles(this, this._getPosition());
 
                 this._setActivedButtons();
@@ -233,17 +241,21 @@
                 this.dispatchEvent(new CustomEvent('hide', { detail: null }));
                 setTimeout(() => this.style.display = 'none', 100);
             }
-            _visibleChanged(visible) {
-                if (visible && this.targetElement) {
-                    this._show();
+            _targetElementChanged(newTarget, oldTarget) {
+                if (!newTarget) return;
+                if (newTarget.hasAttribute('contenteditable')) {
+                    newTarget.addEventListener('blur', this._blurHandler.bind(this), false);
                 }
-                else {
+            }
+            _blurHandler(e) {
+                if (!this.mouseover) {
+                    this.targetElement = undefined;
                     this._hide();
+                    e.target.removeEventListener('blur', this._blurHandler.bind(this), false);
                 }
             }
             constructor() {
                 super();
-                // …
             }
             connectedCallback() {
                 super.connectedCallback();
@@ -262,7 +274,7 @@
                             e.currentTarget.classList.remove('active');
                             if (action) {
                                 let elem = action.inactive(tag, this.targetElement);
-                                this.visible = false;
+                                this._hide();
                                 this.dispatchEvent(new CustomEvent('inactive', { detail: { tag: tag, element: elem } }));
                             }
                         }
@@ -270,7 +282,7 @@
                             e.currentTarget.classList.add('active');
                             if (action) {
                                 let elem = action.active(tag, this.targetElement);
-                                this.visible = false;
+                                this._hide();
                                 this.dispatchEvent(new CustomEvent('active', { detail: { tag: tag, element: elem } }));
                             }
                         }
@@ -279,20 +291,23 @@
                 });
 
                 document.addEventListener('selectionchange', (e) => {
+                    if (!this.targetElement || !document.activeElement.matches(this.selector)) return;
                     const selection = window.getSelection();
-                    if (selection.type == "Range") {
-                        //let node = selection.getRangeAt(0).commonAncestorContainer;
-                        const node = document.activeElement;
-                        if (node.hasAttribute('contenteditable')) {
-                            this.targetElement = node;
-                            this.visible = true;
-                            return;
-                        }
-                    }
-
-                    if (!this.mouseover)
-                        this.visible = false;
+                    if (selection.type == "Range")
+                        this._show();
+                    else 
+                        this._hide();
                 });
+
+                if (!this.disableAutotarget && this.selector) {
+                    document.querySelectorAll(this.selector).forEach(elem => {
+                        if (!elem.hasAttribute('contenteditable')) return;
+
+                        elem.addEventListener('focus', (e) => {
+                            this.targetElement = elem;
+                        });
+                    });
+                }
             }
 
             ready() {

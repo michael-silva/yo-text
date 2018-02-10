@@ -20,13 +20,13 @@
 </head>
 
 <body>
-    <div class="vertical-section-container centered">
+    <!--<div class="vertical-section-container centered">
         <h3>Basic yo-text demo</h3>
         <demo-snippet>
             <template>
-                <h1 contenteditable="true">Some title example</h1>
-                <h2 contenteditable="true">Here has some text and you can edit it.</h2>
-                <p contenteditable="true">
+                <h1 contenteditable>Some title example</h1>
+                <h2 contenteditable>Here has some text and you can edit it.</h2>
+                <p contenteditable>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                     <br>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     <br>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -37,6 +37,52 @@
                     <br>officia deserunt mollit anim id est laborum.
                 </p>
                 <yo-text direction="bottom"></yo-text>
+            </template>
+        </demo-snippet>
+    </div>-->
+    <div class="vertical-section-container centered">
+        <h3>Setting selector yo-text demo</h3>
+        <demo-snippet>
+            <template>
+                <h1 class="editable" contenteditable>Some title example</h1>
+                <h2 contenteditable>Here has some text and you can edit it.</h2>
+                <p class="editable" contenteditable>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                    <br>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    <br>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                    <br>nisi ut aliquip ex ea
+                    <b>commodo consequat</b>. Duis aute irure dolor in
+                    <br>reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    <br>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                    <br>officia deserunt mollit anim id est laborum.
+                </p>
+                <yo-text direction="bottom" selector=".editable"></yo-text>
+            </template>
+        </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+        <h3>Starting by js yo-text demo</h3>
+        <demo-snippet>
+            <template>
+                <h1 contenteditable>Some title example</h1>
+                <h2 contenteditable>Here has some text and you can edit it.</h2>
+                <p id="p1" contenteditable>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                    <br>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    <br>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                    <br>nisi ut aliquip ex ea
+                    <b>commodo consequat</b>. Duis aute irure dolor in
+                    <br>reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    <br>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                    <br>officia deserunt mollit anim id est laborum.
+                </p>
+                <yo-text id="yo1" disable-autotarget></yo-text>
+                <script>
+                    const yo = document.querySelector('#yo1');
+                    document.querySelector('#p1').addEventListener('focus', (e) => {
+                        yo.targetElement = e.target;
+                    });
+                </script>
             </template>
         </demo-snippet>
     </div>
