@@ -291,7 +291,7 @@
                 });
 
                 document.addEventListener('selectionchange', (e) => {
-                    if (!this.targetElement || !document.activeElement.matches(this.selector)) return;
+                    if (!this.targetElement || (!this.disableAutotarget && !document.activeElement.matches(this.selector))) return;
                     const selection = window.getSelection();
                     if (selection.type == "Range")
                         this._show();
