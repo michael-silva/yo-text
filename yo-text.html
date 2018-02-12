@@ -128,11 +128,11 @@
                     }
                 };
             }
-            static get actions() {
+            _getActions() {
                 let surroundByTag = (node, tag) => {
                     const startMarker = `#${tag}#`;
                     const endMarker = `#/${tag}#`;
-                    const range = window.getSelection().getRangeAt(0);
+                    const range = this._root.getSelection().getRangeAt(0);
                     const endOffset = range.endOffset;
                     const startOffset = range.startOffset;
 
@@ -156,7 +156,7 @@
                 let releaseFromTag = (node, tag) => {
                     const startMarker = `#${tag}#`;
                     const endMarker = `#/${tag}#`;
-                    const range = window.getSelection().getRangeAt(0);
+                    const range = this._root.getSelection().getRangeAt(0);
                     const startOffset = range.startOffset;
 
                     let container = range.startContainer.parentElement;
@@ -192,7 +192,7 @@
                 };
             }
             _setActivedButtons() {
-                let selected = window.getSelection().getRangeAt(0).startContainer;
+                let selected = this._root.getSelection().getRangeAt(0).startContainer;
 
                 while (!this.targetElement.isSameNode(selected)) {
                     let btn = this.root.querySelector(`[tag='${selected.nodeName.toLowerCase()}']`)
@@ -205,18 +205,18 @@
             }
             _getPosition() {
                 let MARGIN = 10;
-                var contentRect = window.getSelection().getRangeAt(0).getClientRects()[0];
+                var contentRect = this._root.getSelection().getRangeAt(0).getClientRects()[0];
 
                 this.style.display = 'block';
                 var elemRect = this.getBoundingClientRect();
 
-                let left = Math.max(0, ((contentRect.left + window.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2));
-                let top = (contentRect.top + window.scrollY) - elemRect.height - MARGIN;
+                let left = Math.max(0, ((contentRect.left + this._root.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2));
+                let top = (contentRect.top + this._root.scrollY) - elemRect.height - MARGIN;
                 //if screen out change to bottom
-                if (top < window.scrollY)
-                    top = (contentRect.top + window.scrollY) + contentRect.height + MARGIN;
-                if (left + elemRect.width > window.innerWidth)
-                    left = Math.max(0, window.innerWidth - elemRect.width);
+                if (top < this._root.scrollY)
+                    top = (contentRect.top + this._root.scrollY) + contentRect.height + MARGIN;
+                if (left + elemRect.width > this._root.innerWidth)
+                    left = Math.max(0, this._root.innerWidth - elemRect.width);
 
                 let position = {
                     top: `${top}px`,
@@ -241,8 +241,17 @@
                 this.dispatchEvent(new CustomEvent('hide', { detail: null }));
                 setTimeout(() => this.style.display = 'none', 100);
             }
+            _getRoot() {
+                let elem = this.targetElement.parentNode;
+                while (elem) {
+                    if (elem.root  && elem.getSelection) return elem;
+                    elem = elem.parentNode;
+                }
+                return window;
+            }
             _targetElementChanged(newTarget, oldTarget) {
                 if (!newTarget) return;
+                this._root = this._getRoot();
                 if (newTarget.hasAttribute('contenteditable')) {
                     newTarget.addEventListener('blur', this._blurHandler.bind(this), false);
                 }
@@ -268,7 +277,7 @@
                     btn.addEventListener('click', e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        const action = TextEditor.actions[e.currentTarget.getAttribute('action')];
+                        const action = this._getActions()[e.currentTarget.getAttribute('action')];
                         const tag = e.currentTarget.getAttribute('tag');
                         if (e.currentTarget.classList.contains('active')) {
                             e.currentTarget.classList.remove('active');
@@ -292,7 +301,7 @@
 
                 document.addEventListener('selectionchange', (e) => {
                     if (!this.targetElement || (!this.disableAutotarget && !document.activeElement.matches(this.selector))) return;
-                    const selection = window.getSelection();
+                    const selection = this._root.getSelection();
                     if (selection.type == "Range")
                         this._show();
                     else 
