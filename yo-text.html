@@ -210,13 +210,13 @@
                 this.style.display = 'block';
                 var elemRect = this.getBoundingClientRect();
 
-                let left = Math.max(0, ((contentRect.left + this._root.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2));
-                let top = (contentRect.top + this._root.scrollY) - elemRect.height - MARGIN;
+                let left = Math.max(0, ((contentRect.left + window.scrollX) + (contentRect.width / 2)) - (elemRect.width / 2));
+                let top = (contentRect.top + window.scrollY) - elemRect.height - MARGIN;
                 //if screen out change to bottom
-                if (top < this._root.scrollY)
-                    top = (contentRect.top + this._root.scrollY) + contentRect.height + MARGIN;
-                if (left + elemRect.width > this._root.innerWidth)
-                    left = Math.max(0, this._root.innerWidth - elemRect.width);
+                if (top < window.scrollY)
+                    top = (contentRect.top + window.scrollY) + contentRect.height + MARGIN;
+                if (left + elemRect.width > window.innerWidth)
+                    left = Math.max(0, window.innerWidth - elemRect.width);
 
                 let position = {
                     top: `${top}px`,
@@ -244,7 +244,7 @@
             _getRoot() {
                 let elem = this.targetElement.parentNode;
                 while (elem) {
-                    if (elem.root  && elem.getSelection) return elem;
+                    if (elem.getSelection) return elem;
                     elem = elem.parentNode;
                 }
                 return window;
